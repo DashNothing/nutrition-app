@@ -1,7 +1,8 @@
 /** @jsxRuntime classic */
 /** @jsx jsx */
 import { jsx, css } from "@emotion/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { FoodContext } from "../../FoodContext";
 import Heading from "../../components/Heading";
 import NutrientDisplayMenu from "../../components/NutrientDisplayMenu";
 import CalorieBurnInfo from "../../components/CalorieBurnInfo";
@@ -45,7 +46,7 @@ const vitaminNames = new Map()
 
 const Details = ({ location, match }) => {
 
-  const [food, setFood] = useState({});
+  const [food, setFood] = useContext(FoodContext);
 
   const [selectedNutrientType, setSelectedNutrientType] = useState("basic");
 
@@ -61,36 +62,19 @@ const Details = ({ location, match }) => {
   const abortSignal = abortController.signal;
 
   useEffect(() => {
-    if (location.food == null) {
-      let foodId = match.params.id;
-      fetch(`https://api.nal.usda.gov/fdc/v1/food/${foodId}?api_key=${API_KEY}`, {
-        method: "GET",
-        signal: abortSignal,
-      })
-        .then(res => res.json())
-        .then(data => {
-          setFood(data);
-          console.log(data);
-        })
-        .catch(err => console.log(err));
-    } else {
-      setFood(location.food);
-    }
-
-    return function cleanup() {
-      abortController.abort();
+    if (food == null) {
+      setFood(JSON.parse(localStorage.getItem("food")));
     }
   }, []);
 
   useEffect(() => {
-    if (food.foodNutrients) {
+    if (food != null) {
       const nutrients = food.foodNutrients;
 
       let newBasicInfo = basicInfo;
       for (let [key, value] of basicNames.entries()) {
         nutrients.forEach(nutrient => {
           if (nutrient.nutrientName === value) {
-            console.log("Nutrient " + nutrient.nutrientName + " found");
             newBasicInfo[key] = nutrient.value.toString() + nutrient.unitName.toLowerCase();
           }
         });

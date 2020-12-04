@@ -16,7 +16,7 @@ export const ulGridStyle = css`
   grid-gap: 20px;
 `;
 
-export const FoodListItem = styled(Link)`
+export const FoodListItem = styled.div`
   display: inline-block;
   padding: 20px 40px;
   width: 100%;
@@ -25,6 +25,7 @@ export const FoodListItem = styled(Link)`
   border-radius: 15px;
   font-size: 1.1rem;
   transition: all .1s ease;
+  cursor: pointer;
   
   &:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, .15);

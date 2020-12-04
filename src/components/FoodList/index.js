@@ -1,7 +1,9 @@
 /** @jsxRuntime classic */
 /** @jsx jsx */
-import React from 'react'
+import { useContext } from 'react'
 import { jsx } from "@emotion/react";
+import { FoodContext } from "../../FoodContext";
+import { useHistory } from "react-router-dom";
 import {
   ulStyle,
   ulGridStyle,
@@ -11,17 +13,23 @@ import {
 
 
 const FoodList = ({ foods, isGrid }) => {
+  const [food, setFood] = useContext(FoodContext);
 
-  const foodList = foods.map((food) => {
+  const history = useHistory();
+
+  const handleClick = (foodItem) => {
+    setFood(foodItem, history.push(`details/${foodItem.fdcId}`));
+  }
+
+  const foodList = foods.map((foodItem) => {
     return (
-      <li key={food.fdcId}>
-        <FoodListItem to={{
-          pathname: `/details/${food.fdcId}`,
-          food: food,
-        }}>
-          {food.description}
+      <li key={foodItem.fdcId}>
+        <FoodListItem
+          onClick={() => handleClick(foodItem)}
+        >
+          {foodItem.description}
         </FoodListItem>
-      </li>
+      </li >
     )
   });
 

@@ -1,11 +1,12 @@
 /** @jsxRuntime classic */
 /** @jsx jsx */
 import { jsx } from "@emotion/react";
-import React, { useState, useEffect } from 'react'
-import { BsController } from "react-icons/bs";
-import { useLocation, useHistory } from "react-router-dom";
+import { useState, useEffect } from 'react'
+import { useLocation } from "react-router-dom";
+
 import UseAnimations from 'react-useanimations';
 import loading from "react-useanimations/lib/loading";
+
 import FoodList from "../../components/FoodList";
 import ListDisplayMenu from "../../components/ListDisplayMenu";
 import {
@@ -29,6 +30,7 @@ const Search = () => {
     totalHits: 0,
     query: "",
   });
+
   const [foods, setFoods] = useState([]);
 
   const [isGrid, setIsGrid] = useState(false);

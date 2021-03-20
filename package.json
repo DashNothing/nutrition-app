@@ -2,7 +2,7 @@
   "name": "nutrition-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://dashnothing.github.io/nutrition-app"
+  "homepage": "http://dashnothing.github.io/nutrition-app",
   "dependencies": {
     "@emotion/babel-plugin": "^11.0.0",
     "@emotion/core": "^11.0.0",

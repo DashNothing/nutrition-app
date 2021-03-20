@@ -12,6 +12,7 @@ import {
   NutritionCell,
   tableStyle,
 } from "./DetailsStyles";
+import { useLocation } from "react-router-dom";
 
 
 const basicNames = new Map()
@@ -44,7 +45,7 @@ const vitaminNames = new Map()
 
 
 
-const Details = ({ location, match }) => {
+const Details = ({ match }) => {
 
   const [food, setFood] = useContext(FoodContext);
 
@@ -62,48 +63,39 @@ const Details = ({ location, match }) => {
   const abortSignal = abortController.signal;
 
   useEffect(() => {
-    if (food == null) {
-      setFood(JSON.parse(localStorage.getItem("food")));
-    }
-  }, []);
+    const localStorageFood = JSON.parse(localStorage.getItem("food"));
+    const foodId = match.params.id;
+    let allInfo;
 
-  useEffect(() => {
-    if (food != null) {
-      const nutrients = food.foodNutrients;
+    // If food is saved to localtorage and it matches the id of currently open food
+    if (localStorageFood != null && localStorageFood.fdcId == foodId) {
+      setFood(localStorageFood);
+      allInfo = getInfoFromLocalStorage();
 
-      let newBasicInfo = basicInfo;
-      for (let [key, value] of basicNames.entries()) {
-        nutrients.forEach(nutrient => {
-          if (nutrient.nutrientName === value) {
-            newBasicInfo[key] = nutrient.value.toString() + nutrient.unitName.toLowerCase();
-          }
-        });
-      }
-      setBasicInfo(newBasicInfo);
-
-      let newVitaminInfo = vitaminInfo;
-      for (let [key, value] of vitaminNames.entries()) {
-        nutrients.forEach(nutrient => {
-          if (nutrient.nutrientName === value) {
-            newVitaminInfo[key] = nutrient.value.toString() + nutrient.unitName.toLowerCase();
-          }
-        });
-      }
-      setVitaminInfo(newVitaminInfo);
-
-      let newMineralInfo = mineralInfo;
-      for (let [key, value] of mineralNames.entries()) {
-        nutrients.forEach(nutrient => {
-          if (nutrient.nutrientName === value) {
-            newMineralInfo[key] = nutrient.value.toString() + nutrient.unitName.toLowerCase();
-          }
-        });
-      }
-      setMineralInfo(newMineralInfo);
+      setBasicInfo(allInfo.basicInfo);
+      setVitaminInfo(allInfo.vitaminInfo);
+      setMineralInfo(allInfo.mineralInfo);
 
       setIsLoaded(true);
+    } else {
+      let foodId = match.params.id;
+      fetch(`https://api.nal.usda.gov/fdc/v1/food/${foodId}?api_key=${API_KEY}`, {
+        method: "GET",
+        signal: abortSignal,
+      })
+        .then(res => res.json())
+        .then(data => {
+          allInfo = getInfoFromRequest(data);
+
+          setBasicInfo(allInfo.basicInfo);
+          setVitaminInfo(allInfo.vitaminInfo);
+          setMineralInfo(allInfo.mineralInfo);
+
+          setIsLoaded(true);
+        })
+        .catch(err => console.log(err));
     }
-  }, [food]);
+  }, []);
 
   function handleNutritionMenuClick(event) {
     const selectedNutrientType = event.target.id;
@@ -164,5 +156,72 @@ const Details = ({ location, match }) => {
     </main>
   )
 }
+
+function getInfoFromLocalStorage(basicNames, vitaminNames, mineralNames) {
+  let allInfo;
+
+  const food = JSON.parse(localStorage.getItem("food"));
+  const nutrients = food.foodNutrients;
+
+  for (let [key, value] of basicNames.entries()) {
+    nutrients.forEach(nutrient => {
+      if (nutrient.nutrientName === value) {
+        allInfo.basicInfo[key] = nutrient.value.toString() + nutrient.unitName.toLowerCase();
+      }
+    });
+  }
+
+  for (let [key, value] of vitaminNames.entries()) {
+    nutrients.forEach(nutrient => {
+      if (nutrient.nutrientName === value) {
+        allInfo.vitaminInfo[key] = nutrient.value.toString() + nutrient.unitName.toLowerCase();
+      }
+    });
+  }
+
+  for (let [key, value] of mineralNames.entries()) {
+    nutrients.forEach(nutrient => {
+      if (nutrient.nutrientName === value) {
+        allInfo.mineralInfo[key] = nutrient.value.toString() + nutrient.unitName.toLowerCase();
+      }
+    });
+  }
+
+  return allInfo;
+}
+
+
+function getInfoFromRequest(data) {
+  let allInfo;
+
+  const nutrients = data.foodNutrients;
+
+  for (let [key, value] of basicNames.entries()) {
+    nutrients.forEach(item => {
+      if (item.nutrient.name === value) {
+        allInfo.basicInfo[key] = item.amount.toString() + item.nutrient.unitName.toLowerCase();
+      }
+    });
+  }
+
+  for (let [key, value] of vitaminNames.entries()) {
+    nutrients.forEach(item => {
+      if (item.nutrient.name === value) {
+        allInfo.vitaminInfo[key] = item.amount.toString() + item.nutrient.unitName.toLowerCase();
+      }
+    });
+  }
+
+  for (let [key, value] of mineralNames.entries()) {
+    nutrients.forEach(item => {
+      if (item.nutrient.name === value) {
+        allInfo.mineralInfo[key] = item.amount.toString() + item.nutrient.unitName.toLowerCase();
+      }
+    });
+  }
+
+  return allInfo;
+}
+
 
 export default Details

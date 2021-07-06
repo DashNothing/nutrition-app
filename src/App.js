@@ -26,10 +26,7 @@ function App() {
 							path={`${process.env.PUBLIC_URL}/details/:id`}
 							component={Details}
 						></Route>
-						<Route
-							path={`${process.env.PUBLIC_URL}/`}
-							component={Explore}
-						></Route>
+						<Route path={`/`} component={Explore}></Route>
 					</Switch>
 				</FoodProvider>
 			</Router>

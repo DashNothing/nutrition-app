@@ -25,7 +25,7 @@ const Navbar = () => {
 
 	return (
 		<header css={headerStyle}>
-			<Link to={`${process.env.PUBLIC_URL}`}>
+			<Link to={`${process.env.PUBLIC_URL}/`}>
 				<h1 css={logoStyle}>NutritionApp</h1>
 			</Link>
 			{renderSearchbar()}
